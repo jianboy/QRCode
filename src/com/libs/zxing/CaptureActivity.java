@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Collection;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -20,6 +21,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
+import me.yoqi.qrcode.ResultActivity;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
@@ -32,8 +34,13 @@ import com.google.zxing.client.android.decode.ViewfinderView;
 import com.google.zxing.client.android.result.ResultHandler;
 import com.google.zxing.client.android.result.ResultHandlerFactory;
 
-public final class CaptureActivity extends Activity implements
-		SurfaceHolder.Callback {
+/**
+ * 识别二维码 CaptureActivity
+ * 
+ * @author liuyuqi
+ *
+ */
+public final class CaptureActivity extends Activity implements SurfaceHolder.Callback {
 
 	private static final String TAG = CaptureActivity.class.getSimpleName();
 
@@ -244,9 +251,11 @@ public final class CaptureActivity extends Activity implements
 		}
 
 		String text = rawResult.getText();
-
-		Toast.makeText(this, "扫描结果:" + text, Toast.LENGTH_LONG).show();
-		Log.d(TAG, "result-->" + text);
+		Intent intent = new Intent(this, ResultActivity.class);
+		intent.putExtra("text", text);
+		startActivity(intent);
+//		Toast.makeText(this, "扫描结果:" + text, Toast.LENGTH_LONG).show();
+//		Log.d(TAG, "result-->" + text);
 	}
 
 	/**
