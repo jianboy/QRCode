@@ -1,6 +1,6 @@
 package me.yoqi.qrcode;
 
-import com.libs.zxing.R;
+import me.yoqi.qrcode.R;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;

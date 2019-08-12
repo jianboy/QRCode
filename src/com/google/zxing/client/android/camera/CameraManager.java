@@ -184,7 +184,7 @@ public final class CameraManager
     }
 
     /**
-     * Convenience method for {@link com.google.zxing.client.android.CaptureActivity}
+     * Convenience method for {@link com.google.me.yoqi.qrcode.CaptureActivity}
      */
     public synchronized void setTorch(boolean newSetting){
         if (camera != null)

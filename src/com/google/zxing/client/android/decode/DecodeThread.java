@@ -19,12 +19,12 @@ package com.google.zxing.client.android.decode;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.ResultPointCallback;
-import com.libs.zxing.CaptureActivity;
-import com.libs.zxing.Config;
 
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
+import me.yoqi.qrcode.CaptureActivity;
+import me.yoqi.qrcode.Config;
 
 import java.util.Collection;
 import java.util.EnumMap;

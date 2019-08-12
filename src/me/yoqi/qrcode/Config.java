@@ -1,4 +1,4 @@
-package com.libs.zxing;
+package me.yoqi.qrcode;
 
 
 public class Config

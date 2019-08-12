@@ -18,7 +18,7 @@ package com.google.zxing.client.android.result;
 
 import com.google.zxing.client.result.ParsedResult;
 import com.google.zxing.client.result.URIParsedResult;
-import com.libs.zxing.R;
+import me.yoqi.qrcode.R;
 
 import android.app.Activity;
 import android.widget.Toast;

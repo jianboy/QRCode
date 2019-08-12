@@ -26,8 +26,8 @@ import android.util.Log;
 
 import java.io.IOException;
 
-import com.libs.zxing.Config;
-import com.libs.zxing.R;
+import me.yoqi.qrcode.Config;
+import me.yoqi.qrcode.R;
 
 /**
  * Manages beeps and vibrations for {@link CaptureActivity}.

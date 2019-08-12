@@ -23,8 +23,9 @@ import android.provider.Browser;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 import com.google.zxing.client.android.camera.CameraManager;
-import com.libs.zxing.CaptureActivity;
-import com.libs.zxing.R;
+
+import me.yoqi.qrcode.CaptureActivity;
+import me.yoqi.qrcode.R;
 
 import android.app.Activity;
 import android.content.Intent;

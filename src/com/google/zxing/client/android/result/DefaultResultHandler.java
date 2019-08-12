@@ -5,7 +5,7 @@ import android.widget.Toast;
 
 import com.google.zxing.Result;
 import com.google.zxing.client.result.ParsedResult;
-import com.libs.zxing.R;
+import me.yoqi.qrcode.R;
 
 
 public class DefaultResultHandler extends ResultHandler

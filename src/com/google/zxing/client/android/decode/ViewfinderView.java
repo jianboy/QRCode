@@ -18,7 +18,7 @@ package com.google.zxing.client.android.decode;
 
 import com.google.zxing.ResultPoint;
 import com.google.zxing.client.android.camera.CameraManager;
-import com.libs.zxing.R;
+import me.yoqi.qrcode.R;
 
 import android.content.Context;
 import android.content.res.Resources;
