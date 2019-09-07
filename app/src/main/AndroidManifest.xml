@@ -45,10 +45,6 @@
         android:smallScreens="true"
         android:xlargeScreens="true" />
 
-    <uses-sdk
-        android:minSdkVersion="9"
-        android:targetSdkVersion="17" />
-
     <application
         android:allowBackup="true"
         android:icon="@drawable/logo2"
