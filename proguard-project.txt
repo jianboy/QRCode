@@ -1,0 +1,48 @@
+# 保存被AndroidManifest.xml调用或者webview的类
+-keepclassmembers
+	class fqcn.of.javascript.interface.for.webview
+	{
+	   public *;
+	}
+-keep public class * extends android.app.Activity
+-keep public class * extends android.app.Application                  
+-keep public class * extends android.app.Service                      
+-keep public class * extends android.content.BroadcastReceiver        
+-keep public class * extends android.content.ContentProvider          
+-keep public class * extends android.app.backup.BackupAgentHelper     
+-keep public class * extends android.preference.Preference
+
+#第三方类库
+-keep
+	class android.**
+	 {*;}
+-keep
+	class com.jeremyfeinstein.slidingmenu.lib.**
+	 {*;}
+-keep
+	class com.actionbarsherlock.**
+	 {*;}
+-keep
+	class com.lidroid.xutils.**
+	 {*;}
+
+# 保留所有具有公有访问权限的类和其公共成员
+-keepclasseswithmembers
+	class *{
+	    public *;
+	}
+# 删除Log代码
+-assumenosideeffects
+	class android.util.Log
+	{
+		public static ***
+		 e(...);
+		    public static ***
+		 w(...);
+		    public static ***
+		 wtf(...);
+		    public static ***
+		 d(...);
+		    public static ***
+		 v(...);
+	}
