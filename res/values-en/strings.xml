@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">QRCode</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    
+	<string name="camera_open_notice">You have turned on the lights!</string>
+	<string name="camera_close_notice">You have turned off the lights!</string>
+    
+	<string name="camera_problem">Sorry, there is a problem with your camera. You may need to reboot your device.</string>
+	<string name="framwork_problem">There is a temporary problem with QR code scanning. You reboot and try again.</string>
+	<string name="msg_share_subject_line">This is the content of the barcode I scanned.</string>
+	<string name="msg_default_mms_subject">Hi</string>
+	<string name="msg_intent_failed">Sorry, the required software could not be opened. Barcode content may not be valid.</string>
+	 <string name="button_ok">Sure</string>
+	 <string name="result_uri">URL path</string>
+	 
+	 <string name="button_1">Browser open</string>
+	 <string name="button_2">content</string>
+	 <string name="button_3">Other title</string>
+	 <string name="result_title_default">URL path</string>
+	 
+	 <string name="qrcode_notice">The QR code pattern is placed in the framing frame for automatic scanning.</string>
+	 <string name="openorclose_light">Turn lights on or off</string>
+	 <string name="qrcode_empty"></string>
+	 
+	 <string name="qrcode_open">Open with a browser</string>
+	 
+	 <string name="paramete_error">The parameters are correct, please rescan</string>
+	 <string name="scan_result">The scan result is:</string>
+	 <string name="auto_copy">Had copied to the clipboard</string>
+</resources>

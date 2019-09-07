@@ -3,6 +3,17 @@ package me.yoqi.qrcode;
 import java.io.IOException;
 import java.util.Collection;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.Result;
+import com.google.zxing.ResultPoint;
+import com.google.zxing.client.android.camera.CameraManager;
+import com.google.zxing.client.android.decode.BeepManager;
+import com.google.zxing.client.android.decode.CaptureActivityHandler;
+import com.google.zxing.client.android.decode.InactivityTimer;
+import com.google.zxing.client.android.decode.ViewfinderView;
+import com.google.zxing.client.android.result.ResultHandler;
+import com.google.zxing.client.android.result.ResultHandlerFactory;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -21,23 +32,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
-
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.Result;
-import com.google.zxing.ResultPoint;
-import com.google.zxing.client.android.camera.CameraManager;
-import com.google.zxing.client.android.decode.BeepManager;
-import com.google.zxing.client.android.decode.CaptureActivityHandler;
-import com.google.zxing.client.android.decode.InactivityTimer;
-import com.google.zxing.client.android.decode.ViewfinderView;
-import com.google.zxing.client.android.result.ResultHandler;
-import com.google.zxing.client.android.result.ResultHandlerFactory;
-import me.yoqi.qrcode.R;
-import me.yoqi.qrcode.R.color;
-import me.yoqi.qrcode.R.drawable;
-import me.yoqi.qrcode.R.id;
-import me.yoqi.qrcode.R.layout;
-import me.yoqi.qrcode.R.string;
 
 /**
  * 识别二维码 CaptureActivity

@@ -28,5 +28,6 @@
 	 <string name="qrcode_open">用浏览器打开</string>
 	 
 	 <string name="paramete_error">参数正确，请重新扫描</string>
-	 
+	 <string name="scan_result">扫描结果为：</string>
+	 <string name="auto_copy">已自动复制到剪切板</string>
 </resources>
