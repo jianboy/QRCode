@@ -87,7 +87,7 @@ public final class CameraManager
         Camera theCamera = camera;
         if (theCamera == null)
         {
-            theCamera = new OpenCameraManager ().build ().open ();
+            theCamera = new OpenCameraManager().build().open();
             if (theCamera == null) { throw new IOException (); }
             camera = theCamera;
         }
@@ -184,7 +184,7 @@ public final class CameraManager
     }
 
     /**
-     * Convenience method for {@link com.google.me.yoqi.qrcode.CaptureActivity}
+     * Convenience method for {@link me.yoqi.qrcode.CaptureActivity}
      */
     public synchronized void setTorch(boolean newSetting){
         if (camera != null)

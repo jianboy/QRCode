@@ -1,24 +1,13 @@
 package me.yoqi.qrcode;
 
-import java.io.IOException;
-import java.util.Collection;
-
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.Result;
-import com.google.zxing.ResultPoint;
-import com.google.zxing.client.android.camera.CameraManager;
-import com.google.zxing.client.android.decode.BeepManager;
-import com.google.zxing.client.android.decode.CaptureActivityHandler;
-import com.google.zxing.client.android.decode.InactivityTimer;
-import com.google.zxing.client.android.decode.ViewfinderView;
-import com.google.zxing.client.android.result.ResultHandler;
-import com.google.zxing.client.android.result.ResultHandlerFactory;
-
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -32,6 +21,20 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.Result;
+import com.google.zxing.ResultPoint;
+import com.google.zxing.client.android.camera.CameraManager;
+import com.google.zxing.client.android.decode.BeepManager;
+import com.google.zxing.client.android.decode.CaptureActivityHandler;
+import com.google.zxing.client.android.decode.InactivityTimer;
+import com.google.zxing.client.android.decode.ViewfinderView;
+import com.google.zxing.client.android.result.ResultHandler;
+import com.google.zxing.client.android.result.ResultHandlerFactory;
+
+import java.io.IOException;
+import java.util.Collection;
 
 /**
  * 识别二维码 CaptureActivity
@@ -52,11 +55,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 	private InactivityTimer inactivityTimer;
 	private String characterSet;
 	private BeepManager beepManager;
-
-	final static String profix1 = "?appid=";
-	final static String profix2 = "-title=";
-	final static String action = "muzhiwan.action.detail";
-	final static String bundle_key = "detail";
 
 	ImageView opreateView;
 
@@ -152,7 +150,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 		inactivityTimer.onPause();
 		cameraManager.closeDriver();
 		if (!hasSurface) {
-			SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
+			SurfaceView surfaceView = findViewById(R.id.preview_view);
 			SurfaceHolder surfaceHolder = surfaceView.getHolder();
 			surfaceHolder.removeCallback(this);
 		}
@@ -297,6 +295,12 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 	}
 
 	private void initCamera(SurfaceHolder surfaceHolder) {
+		//		权限检测
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+				requestPermissions(new String[]{Manifest.permission.CAMERA}, 1);
+			}
+		}
 		if (surfaceHolder == null) {
 			throw new IllegalStateException("No SurfaceHolder provided");
 		}

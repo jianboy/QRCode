@@ -15,7 +15,7 @@
 -keep 	class com.lidroid.xutils.** 	 {*;}
 
 # 保留所有具有公有访问权限的类和其公共成员
--keepclasseswithmembers 	class *{	    public *;	}
+#-keepclasseswithmembers 	class *{	    public *;	}
 
 # 删除Log代码
 -assumenosideeffects 	class android.util.Log 	{
