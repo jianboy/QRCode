@@ -9,7 +9,7 @@
 	<string name="camera_close_notice">You have turned off the lights!</string>
     
 	<string name="camera_problem">Sorry, there is a problem with your camera. You may need to reboot your device.</string>
-	<string name="framwork_problem">There is a temporary problem with QR code scanning. You reboot and try again.</string>
+	<string name="framwork_problem">There is a temporary problem with QR code scanning. Please check camera permission.</string>
 	<string name="msg_share_subject_line">This is the content of the barcode I scanned.</string>
 	<string name="msg_default_mms_subject">Hi</string>
 	<string name="msg_intent_failed">Sorry, the required software could not be opened. Barcode content may not be valid.</string>
