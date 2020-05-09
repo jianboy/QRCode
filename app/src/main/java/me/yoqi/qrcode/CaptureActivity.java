@@ -38,7 +38,7 @@ import java.util.Collection;
 
 /**
  * 识别二维码 CaptureActivity
- * 
+ *
  * @author liuyuqi
  *
  */
@@ -157,7 +157,22 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 		super.onPause();
 	}
 
-	@Override
+    @Override
+    protected void onStop() {
+        if (handler != null) {
+            handler.quitSynchronously();
+            handler = null;
+        }
+        cameraManager.closeDriver();
+        if (!hasSurface) {
+            SurfaceView surfaceView = findViewById(R.id.preview_view);
+            SurfaceHolder surfaceHolder = surfaceView.getHolder();
+            surfaceHolder.removeCallback(this);
+        }
+        super.onStop();
+    }
+
+    @Override
 	protected void onDestroy() {
 		inactivityTimer.shutdown();
 		super.onDestroy();
@@ -227,7 +242,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 	/**
 	 * A valid barcode has been found, so give an indication of success and show
 	 * the results.
-	 * 
+	 *
 	 * @param rawResult
 	 *            The contents of the barcode.
 	 * @param barcode
@@ -251,14 +266,13 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 		Intent intent = new Intent(this, ResultActivity.class);
 		intent.putExtra("text", text);
 		startActivity(intent);
-//		Toast.makeText(this, "扫描结果:" + text, Toast.LENGTH_LONG).show();
-//		Log.d(TAG, "result-->" + text);
+        cameraManager.closeDriver();
 	}
 
 	/**
 	 * Superimpose a line for 1D or dots for 2D to highlight the key features of
 	 * the barcode.
-	 * 
+	 *
 	 * @param barcode
 	 *            A bitmap of the captured image.
 	 * @param rawResult
