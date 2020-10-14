@@ -17,6 +17,8 @@ android {
     compileSdkVersion 29
 
     defaultConfig {
+        versionCode 13
+        versionName "1.13"
         applicationId "me.yoqi.qrcode"
         minSdkVersion 14
         targetSdkVersion 29
