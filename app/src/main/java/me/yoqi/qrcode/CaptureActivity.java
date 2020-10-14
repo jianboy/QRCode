@@ -76,6 +76,7 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
 
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);//锁屏界面打开
         setContentView(R.layout.capture);
 
         hasSurface = false;
