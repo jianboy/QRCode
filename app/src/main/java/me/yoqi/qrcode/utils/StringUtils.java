@@ -13,7 +13,7 @@ public class StringUtils {
      */
     public static boolean isHttpUrl(String urls) {
         boolean isurl = false;
-        if (urls.startsWith("http://") || urls.startsWith("https://")){
+        if (urls.startsWith("http://") || urls.startsWith("https://")) {
             return true;
         }
         String regex = "(((https|http)?://)?([a-z0-9]+[.])|(www.))"

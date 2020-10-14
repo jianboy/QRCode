@@ -1,7 +1,6 @@
 package me.yoqi.qrcode;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
@@ -11,9 +10,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import me.yoqi.qrcode.utils.StringUtils;
 
-public class ResultActivity extends Activity {
+public class ResultActivity extends AppCompatActivity {
 
     private EditText et_result;
     private Button btn_url;
@@ -42,8 +43,8 @@ public class ResultActivity extends Activity {
     }
 
     private void initView() {
-        et_result = (EditText) findViewById(R.id.et_result);
-        btn_url = (Button) findViewById(R.id.btn_url);
+        et_result = findViewById(R.id.et_result);
+        btn_url = findViewById(R.id.btn_url);
         btn_url.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
