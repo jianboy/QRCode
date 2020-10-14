@@ -23,8 +23,7 @@
 	 
 	 <string name="qrcode_notice">The QR code pattern is placed in the framing frame for automatic scanning.</string>
 	 <string name="openorclose_light">Turn lights on or off</string>
-	 <string name="qrcode_empty"></string>
-	 
+
 	 <string name="qrcode_open">Open with a browser</string>
 	 
 	 <string name="paramete_error">The parameters are correct, please rescan</string>
