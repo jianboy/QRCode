@@ -1,18 +1,32 @@
 apply plugin: 'com.android.application'
 
+def keystoreProperties = new Properties()
+def keystoreProperitiesFile = rootProject.file('keystore.properties')
+if (keystoreProperitiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystoreProperitiesFile))
+}
 android {
-    compileSdkVersion 28
+    signingConfigs {
+        release {
+            storeFile file(keystoreProperties['storeFile'])
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storePassword keystoreProperties['storePassword']
+        }
+    }
+    compileSdkVersion 29
 
     defaultConfig {
         applicationId "me.yoqi.qrcode"
         minSdkVersion 14
-        targetSdkVersion 28
+        targetSdkVersion 29
     }
 
     buildTypes {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+            signingConfig signingConfigs.release
         }
     }
 }
@@ -20,7 +34,8 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 //    implementation 'com.android.support:appcompat-v7:21.0.3'
-    implementation 'com.android.support:appcompat-v7:28.0.0'
+//    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
 //    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
 //    implementation files('libs/zxing.jar')
 }
