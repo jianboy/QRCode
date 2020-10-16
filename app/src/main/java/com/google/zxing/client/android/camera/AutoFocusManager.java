@@ -20,7 +20,7 @@ import android.content.Context;
 import android.hardware.Camera;
 import android.os.AsyncTask;
 import android.util.Log;
-import me.yoqi.qrcode.Config;
+import me.yoqi.android.qrcode.Config;
 
 import java.util.ArrayList;
 import java.util.Collection;

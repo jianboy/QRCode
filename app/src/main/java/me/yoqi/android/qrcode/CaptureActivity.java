@@ -1,4 +1,4 @@
-package me.yoqi.qrcode;
+package me.yoqi.android.qrcode;
 
 import android.Manifest;
 import android.content.Intent;

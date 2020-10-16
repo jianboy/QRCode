@@ -20,7 +20,7 @@ import com.google.zxing.Result;
 import com.google.zxing.client.result.ParsedResult;
 import com.google.zxing.client.result.ResultParser;
 
-import me.yoqi.qrcode.CaptureActivity;
+import me.yoqi.android.qrcode.CaptureActivity;
 
 /**
  * Manufactures Android-specific handlers based on the barcode content's type.

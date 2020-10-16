@@ -1,4 +1,4 @@
-package me.yoqi.qrcode;
+package me.yoqi.android.qrcode;
 
 
 public class Config {

@@ -22,7 +22,7 @@ import android.hardware.Camera;
 import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
-import me.yoqi.qrcode.Config;
+import me.yoqi.android.qrcode.Config;
 
 import java.util.ArrayList;
 import java.util.Collection;

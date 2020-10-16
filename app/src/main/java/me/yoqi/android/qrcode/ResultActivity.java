@@ -1,4 +1,4 @@
-package me.yoqi.qrcode;
+package me.yoqi.android.qrcode;
 
 import android.annotation.SuppressLint;
 import android.content.ClipData;
@@ -12,7 +12,7 @@ import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import me.yoqi.qrcode.utils.StringUtils;
+import me.yoqi.android.qrcode.utils.StringUtils;
 
 public class ResultActivity extends AppCompatActivity {
 

@@ -16,27 +16,27 @@
 
 package com.google.zxing.client.android.decode;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.provider.Browser;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.Result;
-import com.google.zxing.client.android.camera.CameraManager;
-
-import me.yoqi.qrcode.CaptureActivity;
-import me.yoqi.qrcode.R;
-
-import android.app.Activity;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Browser;
 import android.util.Log;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.Result;
+import com.google.zxing.client.android.camera.CameraManager;
+
 import java.util.Collection;
+
+import me.yoqi.android.qrcode.CaptureActivity;
+import me.yoqi.android.qrcode.R;
 
 /**
  * This class handles all the messaging which comprises the state machine for capture.

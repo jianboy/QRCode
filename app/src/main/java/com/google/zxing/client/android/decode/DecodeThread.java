@@ -20,11 +20,10 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.ResultPointCallback;
 
-import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
-import me.yoqi.qrcode.CaptureActivity;
-import me.yoqi.qrcode.Config;
+import me.yoqi.android.qrcode.CaptureActivity;
+import me.yoqi.android.qrcode.Config;
 
 import java.util.Collection;
 import java.util.EnumMap;

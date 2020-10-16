@@ -1,4 +1,4 @@
-package me.yoqi.qrcode.utils;
+package me.yoqi.android.qrcode.utils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

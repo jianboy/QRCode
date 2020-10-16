@@ -1,4 +1,4 @@
-package me.yoqi.qrcode.service;
+package me.yoqi.android.qrcode.service;
 
 import android.content.Intent;
 import android.os.Build;
@@ -6,7 +6,7 @@ import android.service.quicksettings.TileService;
 
 import androidx.annotation.RequiresApi;
 
-import me.yoqi.qrcode.CaptureActivity;
+import me.yoqi.android.qrcode.CaptureActivity;
 
 /**
  * 下拉快速启动

@@ -19,7 +19,7 @@ android {
     defaultConfig {
         versionCode 13
         versionName "1.23"
-        applicationId "me.yoqi.qrcode"
+        applicationId "me.yoqi.android.qrcode"
         minSdkVersion 14
         targetSdkVersion 29
     }
@@ -29,6 +29,7 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
             signingConfig signingConfigs.release
+            multiDexEnabled true
         }
     }
 }

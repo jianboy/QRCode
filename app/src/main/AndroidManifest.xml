@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="me.yoqi.qrcode"
+    package="me.yoqi.android.qrcode"
     android:installLocation="auto"
     android:versionCode="2"
     android:versionName="1.0.2">
@@ -45,7 +45,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="me.yoqi.qrcode.CaptureActivity"
+            android:name="me.yoqi.android.qrcode.CaptureActivity"
             android:clearTaskOnLaunch="true"
             android:configChanges="orientation|keyboardHidden"
             android:launchMode="singleTop"
@@ -112,10 +112,10 @@
                     android:scheme="zxing" />
             </intent-filter>
         </activity>
-        <activity android:name="me.yoqi.qrcode.ResultActivity" />
+        <activity android:name="me.yoqi.android.qrcode.ResultActivity" />
 
         <service
-            android:name=".service.QuickStartService"
+            android:name="me.yoqi.android.qrcode.service.QuickStartService"
             android:icon="@drawable/qr"
             android:label="@string/app_name"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
