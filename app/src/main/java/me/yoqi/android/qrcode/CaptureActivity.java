@@ -37,6 +37,8 @@ import com.google.zxing.client.android.result.ResultHandlerFactory;
 import java.io.IOException;
 import java.util.Collection;
 
+import me.yoqi.android.qrcode.ui.ResultActivity;
+
 /**
  * 识别二维码 CaptureActivity
  *

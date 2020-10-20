@@ -112,7 +112,8 @@
                     android:scheme="zxing" />
             </intent-filter>
         </activity>
-        <activity android:name="me.yoqi.android.qrcode.ResultActivity" />
+        <activity android:name="me.yoqi.android.qrcode.ui.ResultActivity"/>
+        <activity android:name=".ui.HistoryActivity" />
 
         <service
             android:name="me.yoqi.android.qrcode.service.QuickStartService"

@@ -20,7 +20,7 @@ android {
         versionCode 13
         versionName "1.23"
         applicationId "me.yoqi.android.qrcode"
-        minSdkVersion 14
+        minSdkVersion 16
         targetSdkVersion 29
     }
 
