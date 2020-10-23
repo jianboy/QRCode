@@ -9,7 +9,7 @@ import androidx.annotation.RequiresApi;
 
 import me.yoqi.android.qrcode.CaptureActivity;
 import me.yoqi.android.utils.SPUtils;
-import me.yoqi.android.utils.SimplexToast;
+import me.yoqi.android.utils.ui.SimplexToast;
 
 /**
  * 下拉快速启动

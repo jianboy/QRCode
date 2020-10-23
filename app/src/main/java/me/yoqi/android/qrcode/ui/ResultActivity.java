@@ -8,21 +8,16 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 import me.yoqi.android.qrcode.R;
 import me.yoqi.android.qrcode.dao.ScanHistoryDao;
 import me.yoqi.android.qrcode.model.ScanHistory;
-import me.yoqi.android.qrcode.utils.StringUtils;
+import me.yoqi.android.utils.StringUtils;
 
 /**
  * 扫描结果页面
