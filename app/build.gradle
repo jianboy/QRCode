@@ -14,14 +14,14 @@ android {
             storePassword keystoreProperties['storePassword']
         }
     }
-    compileSdkVersion 29
+    compileSdkVersion 30
 
     defaultConfig {
-        versionCode 13
-        versionName "1.23"
+        versionCode 14
+        versionName "1.23.1"
         applicationId "me.yoqi.android.qrcode"
         minSdkVersion 16
-        targetSdkVersion 29
+        targetSdkVersion 30
     }
 
     buildTypes {
