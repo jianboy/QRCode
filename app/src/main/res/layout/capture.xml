@@ -21,14 +21,14 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:paddingLeft="16dp"
-        android:paddingTop="16dp"
+        android:paddingTop="20dp"
         android:paddingRight="16dp"
         android:paddingBottom="12dp">
 
         <LinearLayout
             android:id="@+id/btn_pick_gallery"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:background="@drawable/bg_scanner_btn"
@@ -37,9 +37,7 @@
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingLeft="14dp"
-            android:paddingTop="8dp"
-            android:paddingRight="14dp"
-            android:paddingBottom="8dp">
+            android:paddingRight="14dp">
 
             <ImageView
                 android:layout_width="20dp"
@@ -58,11 +56,14 @@
 
         <ImageView
             android:id="@+id/button_openorcloseClick"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
+            android:background="@drawable/bg_scanner_btn"
             android:contentDescription="@string/openorclose_light"
+            android:padding="8dp"
+            android:scaleType="centerInside"
             android:src="@drawable/mzw_camera_open" />
 
     </RelativeLayout>

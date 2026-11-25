@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,7 +29,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
@@ -96,6 +99,21 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
 
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        WindowCompat.setDecorFitsSystemWindows(window, false);
+        window.setStatusBarColor(Color.TRANSPARENT);
+        window.setNavigationBarColor(Color.TRANSPARENT);
+        WindowInsetsControllerCompat insetsController =
+                WindowCompat.getInsetsController(window, window.getDecorView());
+        if (insetsController != null) {
+            insetsController.setAppearanceLightStatusBars(false);
+            insetsController.setAppearanceLightNavigationBars(false);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            WindowManager.LayoutParams lp = window.getAttributes();
+            lp.layoutInDisplayCutoutMode =
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+            window.setAttributes(lp);
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             setShowWhenLocked(true);
             setTurnScreenOn(true);
@@ -127,25 +145,31 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
         if (root == null) {
             return;
         }
+        final int topPadLeft = topControls != null ? topControls.getPaddingLeft() : 0;
         final int topPad = topControls != null ? topControls.getPaddingTop() : 0;
+        final int topPadRight = topControls != null ? topControls.getPaddingRight() : 0;
+        final int topPadBottom = topControls != null ? topControls.getPaddingBottom() : 0;
         final int bottomMargin = noticeView != null && noticeView.getLayoutParams() instanceof android.view.ViewGroup.MarginLayoutParams
                 ? ((android.view.ViewGroup.MarginLayoutParams) noticeView.getLayoutParams()).bottomMargin
                 : 0;
 
         ViewCompat.setOnApplyWindowInsetsListener(root, (view, windowInsets) -> {
-            Insets bars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            Insets insets = windowInsets.getInsets(
+                    WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout()
+            );
+            int topInset = insets.top > 0 ? insets.top : getStatusBarHeightFallback();
             if (topControls != null) {
                 topControls.setPadding(
-                        topControls.getPaddingLeft(),
-                        topPad + bars.top,
-                        topControls.getPaddingRight(),
-                        topControls.getPaddingBottom()
+                        topPadLeft + insets.left,
+                        topPad + topInset,
+                        topPadRight + insets.right,
+                        topPadBottom
                 );
             }
             if (noticeView != null && noticeView.getLayoutParams() instanceof android.view.ViewGroup.MarginLayoutParams) {
                 android.view.ViewGroup.MarginLayoutParams lp =
                         (android.view.ViewGroup.MarginLayoutParams) noticeView.getLayoutParams();
-                int targetMargin = bottomMargin + bars.bottom;
+                int targetMargin = bottomMargin + insets.bottom;
                 if (lp.bottomMargin != targetMargin) {
                     lp.bottomMargin = targetMargin;
                     noticeView.setLayoutParams(lp);
@@ -153,7 +177,26 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
             }
             return windowInsets;
         });
-        ViewCompat.requestApplyInsets(root);
+
+        root.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+            @Override
+            public void onViewAttachedToWindow(@NonNull View v) {
+                ViewCompat.requestApplyInsets(v);
+            }
+
+            @Override
+            public void onViewDetachedFromWindow(@NonNull View v) {
+            }
+        });
+        root.post(() -> ViewCompat.requestApplyInsets(root));
+    }
+
+    private int getStatusBarHeightFallback() {
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            return getResources().getDimensionPixelSize(resourceId);
+        }
+        return 0;
     }
 
     private void toggleFlashlight() {
