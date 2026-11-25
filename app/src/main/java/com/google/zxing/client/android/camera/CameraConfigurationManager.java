@@ -19,9 +19,8 @@ package com.google.zxing.client.android.camera;
 import android.content.Context;
 import android.graphics.Point;
 import android.hardware.Camera;
+import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
-import android.view.WindowManager;
 import me.yoqi.android.qrcode.Config;
 
 import java.util.ArrayList;
@@ -57,17 +56,18 @@ public final class CameraConfigurationManager {
    */
   void initFromCameraParameters(Camera camera) {
       Camera.Parameters parameters = camera.getParameters();
-      WindowManager manager = (WindowManager) context .getSystemService(Context.WINDOW_SERVICE);
-      Display display = manager.getDefaultDisplay();
-      int width = display.getWidth();
-      int height = display.getHeight();
+      DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+      int width = metrics.widthPixels;
+      int height = metrics.heightPixels;
       if (width < height) {
            int temp = width;
            width = height;
            height = temp;
       }
       screenResolution = new Point(height, width);
-      cameraResolution = findBestPreviewSizeValue(parameters, new Point(width, height));
+      if (parameters != null) {
+          cameraResolution = findBestPreviewSizeValue(parameters, new Point(width, height));
+      }
   }
 
   void setDesiredCameraParameters(Camera camera, boolean safeMode) {
@@ -111,7 +111,9 @@ public final class CameraConfigurationManager {
       parameters.setFocusMode(focusMode);
     }
 
-    parameters.setPreviewSize(cameraResolution.x, cameraResolution.y);
+    if (cameraResolution != null) {
+      parameters.setPreviewSize(cameraResolution.x, cameraResolution.y);
+    }
     camera.setDisplayOrientation(90);
     camera.setParameters(parameters);
   }
@@ -231,7 +233,14 @@ public final class CameraConfigurationManager {
 
     if (bestSize == null) {
       Camera.Size defaultSize = parameters.getPreviewSize();
-      bestSize = new Point(defaultSize.width, defaultSize.height);
+      if (defaultSize != null) {
+        bestSize = new Point(defaultSize.width, defaultSize.height);
+      } else if (!supportedPreviewSizes.isEmpty()) {
+        Camera.Size first = supportedPreviewSizes.get(0);
+        bestSize = new Point(first.width, first.height);
+      } else {
+        bestSize = new Point(1280, 720);
+      }
       Log.i(TAG, "No suitable preview sizes, using default: " + bestSize);
     }
 

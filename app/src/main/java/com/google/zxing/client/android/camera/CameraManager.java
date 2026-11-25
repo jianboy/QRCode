@@ -119,15 +119,17 @@ public final class CameraManager
             if (parametersFlattened != null)
             {
                 parameters = theCamera.getParameters ();
-                parameters.unflatten (parametersFlattened);
-                try
-                {
-                    theCamera.setParameters (parameters);
-                    configManager.setDesiredCameraParameters (theCamera, true);
-                } catch (RuntimeException re2)
-                {
-                    // Well, darn. Give up
-                    Log.w (TAG, "Camera rejected even safe-mode parameters! No configuration");
+                if (parameters != null) {
+                    parameters.unflatten (parametersFlattened);
+                    try
+                    {
+                        theCamera.setParameters (parameters);
+                        configManager.setDesiredCameraParameters (theCamera, true);
+                    } catch (RuntimeException re2)
+                    {
+                        // Well, darn. Give up
+                        Log.w (TAG, "Camera rejected even safe-mode parameters! No configuration");
+                    }
                 }
             }
         }
@@ -144,8 +146,14 @@ public final class CameraManager
     public synchronized void closeDriver(){
         if (camera != null)
         {
-            camera.release ();
+            try {
+                camera.release ();
+            } catch (RuntimeException e) {
+                Log.w (TAG, "Error releasing camera", e);
+            }
             camera = null;
+            previewing = false;
+            initialized = false;
             // Make sure to clear these each time we close the camera, so that any scanning rect
             // requested by intent is forgotten.
             framingRect = null;
@@ -177,7 +185,11 @@ public final class CameraManager
         }
         if (camera != null && previewing)
         {
-            camera.stopPreview ();
+            try {
+                camera.stopPreview ();
+            } catch (RuntimeException e) {
+                Log.w (TAG, "Error stopping preview", e);
+            }
             previewCallback.setHandler (null, 0);
             previewing = false;
         }

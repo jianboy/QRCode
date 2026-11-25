@@ -15,7 +15,7 @@ android {
     compileSdk 36
 
     defaultConfig {
-        applicationId "me.yoqi.android.qrcode"
+        applicationId "me.yoqi.qrcode"
         minSdk 21
         targetSdk 36
         versionCode 15
@@ -40,7 +40,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-project.txt'
             signingConfig signingConfigs.release
         }

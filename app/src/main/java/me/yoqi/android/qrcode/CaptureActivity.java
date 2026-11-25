@@ -67,6 +67,7 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
     private String characterSet;
     private BeepManager beepManager;
     private ExecutorService decodeExecutor;
+    private boolean hasRequestedCameraPermission;
 
     ImageView opreateView;
     private View btnPickGallery;
@@ -144,8 +145,11 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
             if (noticeView != null && noticeView.getLayoutParams() instanceof android.view.ViewGroup.MarginLayoutParams) {
                 android.view.ViewGroup.MarginLayoutParams lp =
                         (android.view.ViewGroup.MarginLayoutParams) noticeView.getLayoutParams();
-                lp.bottomMargin = bottomMargin + bars.bottom;
-                noticeView.setLayoutParams(lp);
+                int targetMargin = bottomMargin + bars.bottom;
+                if (lp.bottomMargin != targetMargin) {
+                    lp.bottomMargin = targetMargin;
+                    noticeView.setLayoutParams(lp);
+                }
             }
             return windowInsets;
         });
@@ -205,11 +209,17 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
     protected void onResume() {
         super.onResume();
 
-        cameraManager = new CameraManager(getApplication());
+        if (handler != null) {
+            handler.quitSynchronously();
+            handler = null;
+        }
+        if (cameraManager != null) {
+            cameraManager.closeDriver();
+        }
+        cameraManager = new CameraManager(getApplicationContext());
         viewfinderView = findViewById(R.id.viewfinder_view);
         viewfinderView.setCameraManager(cameraManager);
 
-        handler = null;
         updateTorchIcon();
 
         SurfaceView surfaceView = findViewById(R.id.preview_view);
@@ -359,7 +369,8 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
 
     private void initCamera(SurfaceHolder surfaceHolder) {
         if (!hasCameraPermission()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!hasRequestedCameraPermission && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                hasRequestedCameraPermission = true;
                 requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
             }
             return;
@@ -384,7 +395,6 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
         } catch (IOException ioe) {
             Log.w(TAG, ioe);
             Toast.makeText(this, R.string.camera_problem, Toast.LENGTH_SHORT).show();
-            finish();
         } catch (RuntimeException e) {
             Log.w(TAG, "Unexpected error initializing camera", e);
             Toast.makeText(this, R.string.framwork_problem, Toast.LENGTH_SHORT).show();
@@ -396,7 +406,7 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CAMERA_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                if (hasSurface) {
+                if (hasSurface && cameraManager != null && !cameraManager.isOpen()) {
                     SurfaceView surfaceView = findViewById(R.id.preview_view);
                     if (surfaceView != null) {
                         initCamera(surfaceView.getHolder());

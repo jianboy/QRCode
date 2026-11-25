@@ -72,7 +72,9 @@ public final class BeepManager
         if (vibrate)
         {
             Vibrator vibrator = (Vibrator) activity.getSystemService (Context.VIBRATOR_SERVICE);
-            vibrator.vibrate (VIBRATE_DURATION);
+            if (vibrator != null) {
+                vibrator.vibrate (VIBRATE_DURATION);
+            }
         }
     }
 
@@ -82,7 +84,7 @@ public final class BeepManager
         {
             // See if sound settings overrides this
             AudioManager audioService = (AudioManager) activity.getSystemService (Context.AUDIO_SERVICE);
-            if (audioService.getRingerMode () != AudioManager.RINGER_MODE_NORMAL)
+            if (audioService == null || audioService.getRingerMode () != AudioManager.RINGER_MODE_NORMAL)
             {
                 shouldPlayBeep = false;
             }
@@ -104,16 +106,23 @@ public final class BeepManager
         });
 
         AssetFileDescriptor file = activity.getResources ().openRawResourceFd (R.raw.beep);
+        if (file == null) {
+            return null;
+        }
         try
         {
             mediaPlayer.setDataSource (file.getFileDescriptor (), file.getStartOffset (), file.getLength ());
-            file.close ();
             mediaPlayer.setVolume (BEEP_VOLUME, BEEP_VOLUME);
             mediaPlayer.prepare ();
         } catch (IOException ioe)
         {
             Log.w (TAG, ioe);
             mediaPlayer = null;
+        } finally {
+            try {
+                file.close ();
+            } catch (IOException ignored) {
+            }
         }
         return mediaPlayer;
     }
