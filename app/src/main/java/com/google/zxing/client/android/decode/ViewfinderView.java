@@ -123,7 +123,9 @@ public final class ViewfinderView extends View
             paint.setStrokeWidth(4);
             canvas.drawLine (frame.left, frame.top + margin, frame.right, frame.top + margin, paint);
             
-            margin = (margin+4) % (frame.top);
+            if (frame.height() > 0) {
+                margin = (margin + 4) % frame.height();
+            }
             
             paint.setAlpha (SCANNER_ALPHA[scannerAlpha]);
             scannerAlpha = (scannerAlpha + 1) % SCANNER_ALPHA.length;

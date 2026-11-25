@@ -1,15 +1,16 @@
 package me.yoqi.android.qrcode.service;
 
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
 import me.yoqi.android.qrcode.CaptureActivity;
-import me.yoqi.android.utils.SPUtils;
-import me.yoqi.android.utils.ui.SimplexToast;
 
 /**
  * 下拉快速启动
@@ -19,13 +20,16 @@ import me.yoqi.android.utils.ui.SimplexToast;
  */
 @RequiresApi(api = Build.VERSION_CODES.N)
 public class QuickStartService extends TileService {
+    private static final String PREFS_NAME = "qrcode_prefs";
+    private static final String KEY_FLAG_QRCODE = "flag_qrcode";
+
     Tile tile;
-    SPUtils spUtils;
+    SharedPreferences prefs;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        spUtils = SPUtils.getInstance(this);
+        prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
     }
 
     /**
@@ -34,32 +38,42 @@ public class QuickStartService extends TileService {
     @Override
     public void onTileAdded() {
         super.onTileAdded();
-        //添加成功
     }
 
     @Override
     public void onTileRemoved() {
         super.onTileRemoved();
-        //移除成功
     }
 
     @Override
     public void onClick() {
         super.onClick();
         tile = getQsTile();
-        int state = tile.getState();
-        if (state == Tile.STATE_INACTIVE) {
-            tile.setState(Tile.STATE_ACTIVE);
-            spUtils.putBoolean("flag_qrcode", true);
-        } else {
-            spUtils.putBoolean("flag_qrcode", false);
+        if (tile != null) {
+            int state = tile.getState();
+            if (state == Tile.STATE_INACTIVE) {
+                tile.setState(Tile.STATE_ACTIVE);
+                prefs.edit().putBoolean(KEY_FLAG_QRCODE, true).apply();
+            } else {
+                prefs.edit().putBoolean(KEY_FLAG_QRCODE, false).apply();
+            }
+            tile.updateTile();
+            Toast.makeText(this, String.valueOf(state), Toast.LENGTH_SHORT).show();
         }
-        tile.updateTile();
 
-        SimplexToast.show(this, state + "");
         Intent intent = new Intent(this, CaptureActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivityAndCollapse(intent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            PendingIntent pendingIntent = PendingIntent.getActivity(
+                    this,
+                    0,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+            );
+            startActivityAndCollapse(pendingIntent);
+        } else {
+            startActivityAndCollapse(intent);
+        }
     }
 
     /**
@@ -72,7 +86,7 @@ public class QuickStartService extends TileService {
         if (tile == null) {
             return;
         }
-        boolean flag = spUtils.getBoolean("flag_qrcode", false); // 是否启动
+        boolean flag = prefs.getBoolean(KEY_FLAG_QRCODE, false); // 是否启动
         tile.setState(flag ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE);
         tile.updateTile();
     }

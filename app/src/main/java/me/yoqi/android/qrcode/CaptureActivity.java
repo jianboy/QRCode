@@ -1,11 +1,11 @@
 package me.yoqi.android.qrcode;
 
 import android.Manifest;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Paint;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,38 +15,47 @@ import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
-import com.google.zxing.ResultPoint;
 import com.google.zxing.client.android.camera.CameraManager;
 import com.google.zxing.client.android.decode.BeepManager;
 import com.google.zxing.client.android.decode.CaptureActivityHandler;
 import com.google.zxing.client.android.decode.InactivityTimer;
 import com.google.zxing.client.android.decode.ViewfinderView;
-import com.google.zxing.client.android.result.ResultHandler;
 import com.google.zxing.client.android.result.ResultHandlerFactory;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import me.yoqi.android.qrcode.decode.ImageQRDecoder;
 import me.yoqi.android.qrcode.ui.ResultActivity;
 
 /**
- * 识别二维码 CaptureActivity
+ * 识别二维码 CaptureActivity（支持相机实时扫描与图库选图识别）
  *
  * @author liuyuqi
  */
 public final class CaptureActivity extends AppCompatActivity implements SurfaceHolder.Callback {
 
     private static final String TAG = CaptureActivity.class.getSimpleName();
+    private static final int REQUEST_CAMERA_PERMISSION = 1;
 
     private CameraManager cameraManager;
     private CaptureActivityHandler handler;
@@ -57,10 +66,18 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
     private InactivityTimer inactivityTimer;
     private String characterSet;
     private BeepManager beepManager;
+    private ExecutorService decodeExecutor;
 
     ImageView opreateView;
+    private View btnPickGallery;
 
-    ViewfinderView getViewfinderView() {
+    private final ActivityResultLauncher<PickVisualMediaRequest> pickVisualMediaLauncher =
+            registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), this::handleGalleryUriResult);
+
+    private final ActivityResultLauncher<String> getContentLauncher =
+            registerForActivityResult(new ActivityResultContracts.GetContent(), this::handleGalleryUriResult);
+
+    public ViewfinderView getViewfinderView() {
         return viewfinderView;
     }
 
@@ -78,33 +95,109 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
 
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);//锁屏界面打开
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true);
+            setTurnScreenOn(true);
+        } else {
+            window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                    | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        }
         setContentView(R.layout.capture);
 
         hasSurface = false;
         inactivityTimer = new InactivityTimer(this);
         beepManager = new BeepManager(this);
+        decodeExecutor = Executors.newSingleThreadExecutor();
         opreateView = findViewById(R.id.button_openorcloseClick);
+        btnPickGallery = findViewById(R.id.btn_pick_gallery);
 
-        opreateView.setOnClickListener(new OnClickListener() {
+        applySystemBarInsets();
 
-            @Override
-            public void onClick(View v) {
-                if (cameraManager != null) {
-                    Config.KEY_FRONT_LIGHT = !Config.KEY_FRONT_LIGHT;
-                    if (Config.KEY_FRONT_LIGHT == true) {
-                        opreateView
-                                .setImageResource(R.drawable.mzw_camera_close);
-                    } else {
-                        opreateView
-                                .setImageResource(R.drawable.mzw_camera_open);
-                    }
-                    cameraManager.getConfigManager().initializeTorch(
-                            cameraManager.getCamera().getParameters(), false);
-                    onPause();
-                    onResume();
-                }
+        opreateView.setOnClickListener(v -> toggleFlashlight());
+        if (btnPickGallery != null) {
+            btnPickGallery.setOnClickListener(v -> openGalleryPicker());
+        }
+    }
+
+    private void applySystemBarInsets() {
+        View root = findViewById(R.id.capture_root);
+        View topControls = findViewById(R.id.top_controls);
+        View noticeView = findViewById(R.id.barcode_notice);
+        if (root == null) {
+            return;
+        }
+        final int topPad = topControls != null ? topControls.getPaddingTop() : 0;
+        final int bottomMargin = noticeView != null && noticeView.getLayoutParams() instanceof android.view.ViewGroup.MarginLayoutParams
+                ? ((android.view.ViewGroup.MarginLayoutParams) noticeView.getLayoutParams()).bottomMargin
+                : 0;
+
+        ViewCompat.setOnApplyWindowInsetsListener(root, (view, windowInsets) -> {
+            Insets bars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            if (topControls != null) {
+                topControls.setPadding(
+                        topControls.getPaddingLeft(),
+                        topPad + bars.top,
+                        topControls.getPaddingRight(),
+                        topControls.getPaddingBottom()
+                );
             }
+            if (noticeView != null && noticeView.getLayoutParams() instanceof android.view.ViewGroup.MarginLayoutParams) {
+                android.view.ViewGroup.MarginLayoutParams lp =
+                        (android.view.ViewGroup.MarginLayoutParams) noticeView.getLayoutParams();
+                lp.bottomMargin = bottomMargin + bars.bottom;
+                noticeView.setLayoutParams(lp);
+            }
+            return windowInsets;
+        });
+        ViewCompat.requestApplyInsets(root);
+    }
+
+    private void toggleFlashlight() {
+        if (cameraManager != null && cameraManager.isOpen()) {
+            Config.KEY_FRONT_LIGHT = !Config.KEY_FRONT_LIGHT;
+            updateTorchIcon();
+            cameraManager.setTorch(Config.KEY_FRONT_LIGHT);
+        }
+    }
+
+    private void updateTorchIcon() {
+        if (opreateView != null) {
+            opreateView.setImageResource(
+                    Config.KEY_FRONT_LIGHT ? R.drawable.mzw_camera_close : R.drawable.mzw_camera_open
+            );
+        }
+    }
+
+    private void openGalleryPicker() {
+        try {
+            pickVisualMediaLauncher.launch(new PickVisualMediaRequest.Builder()
+                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                    .build());
+        } catch (ActivityNotFoundException e) {
+            try {
+                getContentLauncher.launch("image/*");
+            } catch (ActivityNotFoundException ex) {
+                Toast.makeText(this, R.string.decode_gallery_read_error, Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void handleGalleryUriResult(Uri uri) {
+        if (uri == null || decodeExecutor == null || decodeExecutor.isShutdown()) {
+            return;
+        }
+        decodeExecutor.execute(() -> {
+            Result result = ImageQRDecoder.decodeFromUri(getApplicationContext(), uri);
+            runOnUiThread(() -> {
+                if (isFinishing() || isDestroyed()) {
+                    return;
+                }
+                if (result != null && result.getText() != null) {
+                    handleDecode(result, null);
+                } else {
+                    Toast.makeText(CaptureActivity.this, R.string.decode_gallery_failed, Toast.LENGTH_SHORT).show();
+                }
+            });
         });
     }
 
@@ -112,35 +205,22 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
     protected void onResume() {
         super.onResume();
 
-        // CameraManager must be initialized here, not in onCreate(). This is
-        // necessary because we don't
-        // want to open the camera driver and measure the screen size if we're
-        // going to show the help on
-        // first launch. That led to bugs where the scanning rectangle was the
-        // wrong size and partially
-        // off screen.
         cameraManager = new CameraManager(getApplication());
-
         viewfinderView = findViewById(R.id.viewfinder_view);
         viewfinderView.setCameraManager(cameraManager);
 
         handler = null;
+        updateTorchIcon();
+
         SurfaceView surfaceView = findViewById(R.id.preview_view);
         SurfaceHolder surfaceHolder = surfaceView.getHolder();
         if (hasSurface) {
-            // The activity was paused but not stopped, so the surface still
-            // exists. Therefore
-            // surfaceCreated() won't be called, so init the camera here.
             initCamera(surfaceHolder);
         } else {
-            // Install the callback and wait for surfaceCreated() to init the
-            // camera.
             surfaceHolder.addCallback(this);
-            surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         }
 
         beepManager.updatePrefs();
-
         inactivityTimer.onResume();
     }
 
@@ -151,7 +231,9 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
             handler = null;
         }
         inactivityTimer.onPause();
-        cameraManager.closeDriver();
+        if (cameraManager != null) {
+            cameraManager.closeDriver();
+        }
         if (!hasSurface) {
             SurfaceView surfaceView = findViewById(R.id.preview_view);
             SurfaceHolder surfaceHolder = surfaceView.getHolder();
@@ -166,7 +248,9 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
             handler.quitSynchronously();
             handler = null;
         }
-        cameraManager.closeDriver();
+        if (cameraManager != null) {
+            cameraManager.closeDriver();
+        }
         if (!hasSurface) {
             SurfaceView surfaceView = findViewById(R.id.preview_view);
             SurfaceHolder surfaceHolder = surfaceView.getHolder();
@@ -178,6 +262,9 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
     @Override
     protected void onDestroy() {
         inactivityTimer.shutdown();
+        if (decodeExecutor != null) {
+            decodeExecutor.shutdownNow();
+        }
         super.onDestroy();
     }
 
@@ -185,25 +272,29 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
-                // restartPreviewAfterDelay(0L);
                 return super.onKeyDown(keyCode, event);
             case KeyEvent.KEYCODE_FOCUS:
             case KeyEvent.KEYCODE_CAMERA:
-                // Handle these events so they don't launch the Camera app
                 return true;
-            // Use volume up/down to turn on light
             case KeyEvent.KEYCODE_VOLUME_DOWN:
-                cameraManager.setTorch(false);
+                if (cameraManager != null) {
+                    Config.KEY_FRONT_LIGHT = false;
+                    updateTorchIcon();
+                    cameraManager.setTorch(false);
+                }
                 return true;
             case KeyEvent.KEYCODE_VOLUME_UP:
-                cameraManager.setTorch(true);
+                if (cameraManager != null) {
+                    Config.KEY_FRONT_LIGHT = true;
+                    updateTorchIcon();
+                    cameraManager.setTorch(true);
+                }
                 return true;
         }
         return super.onKeyDown(keyCode, event);
     }
 
     private void decodeOrStoreSavedBitmap(Bitmap bitmap, Result result) {
-        // Bitmap isn't used yet -- will be used soon
         if (handler == null) {
             savedResultToShow = result;
         } else {
@@ -220,11 +311,7 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
     }
 
     @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-        if (holder == null) {
-            Log.e(TAG,
-                    "*** WARNING *** surfaceCreated() gave us a null surface!");
-        }
+    public void surfaceCreated(@NonNull SurfaceHolder holder) {
         if (!hasSurface) {
             hasSurface = true;
             initCamera(holder);
@@ -232,14 +319,12 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
     }
 
     @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
+    public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
         hasSurface = false;
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width,
-                               int height) {
-
+    public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) {
     }
 
     /**
@@ -247,19 +332,14 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
      * the results.
      *
      * @param rawResult The contents of the barcode.
-     * @param barcode   A greyscale bitmap of the camera data which was decoded.
+     * @param barcode   A greyscale bitmap of the camera data which was decoded (null for gallery decode).
      */
     public void handleDecode(Result rawResult, Bitmap barcode) {
         inactivityTimer.onActivity();
-        ResultHandler resultHandler = ResultHandlerFactory.makeResultHandler(
-                this, rawResult);
+        ResultHandlerFactory.makeResultHandler(this, rawResult);
 
-        boolean fromLiveScan = barcode != null;
-        if (fromLiveScan) {
-            // Then not from history, so beep/vibrate and we have an image to
-            // draw on
-            beepManager.playBeepSoundAndVibrate();
-            // drawResultPoints(barcode, rawResult);
+        beepManager.playBeepSoundAndVibrate();
+        if (barcode != null && viewfinderView != null) {
             viewfinderView.drawResultBitmap(barcode);
         }
 
@@ -267,65 +347,35 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
         Intent intent = new Intent(this, ResultActivity.class);
         intent.putExtra("text", text);
         startActivity(intent);
-        cameraManager.closeDriver();
-    }
-
-    /**
-     * Superimpose a line for 1D or dots for 2D to highlight the key features of
-     * the barcode.
-     *
-     * @param barcode   A bitmap of the captured image.
-     * @param rawResult The decoded results which contains the points to draw.
-     */
-    private void drawResultPoints(Bitmap barcode, Result rawResult) {
-        ResultPoint[] points = rawResult.getResultPoints();
-        if (points != null && points.length > 0) {
-            Canvas canvas = new Canvas(barcode);
-            Paint paint = new Paint();
-            paint.setColor(getResources().getColor(R.color.result_points));
-            if (points.length == 2) {
-                paint.setStrokeWidth(4.0f);
-                drawLine(canvas, paint, points[0], points[1]);
-            } else if (points.length == 4
-                    && (rawResult.getBarcodeFormat() == BarcodeFormat.UPC_A || rawResult
-                    .getBarcodeFormat() == BarcodeFormat.EAN_13)) {
-                // Hacky special case -- draw two lines, for the barcode and
-                // metadata
-                drawLine(canvas, paint, points[0], points[1]);
-                drawLine(canvas, paint, points[2], points[3]);
-            } else {
-                paint.setStrokeWidth(10.0f);
-                for (ResultPoint point : points) {
-                    canvas.drawPoint(point.getX(), point.getY(), paint);
-                }
-            }
+        if (cameraManager != null) {
+            cameraManager.closeDriver();
         }
     }
 
-    private static void drawLine(Canvas canvas, Paint paint, ResultPoint a,
-                                 ResultPoint b) {
-        canvas.drawLine(a.getX(), a.getY(), b.getX(), b.getY(), paint);
+    private boolean hasCameraPermission() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED;
     }
 
     private void initCamera(SurfaceHolder surfaceHolder) {
-        //		权限检测
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.CAMERA}, 1);
+        if (!hasCameraPermission()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
             }
+            return;
         }
         if (surfaceHolder == null) {
             throw new IllegalStateException("No SurfaceHolder provided");
         }
+        if (cameraManager == null) {
+            return;
+        }
         if (cameraManager.isOpen()) {
-            Log.w(TAG,
-                    "initCamera() while already open -- late SurfaceView callback?");
+            Log.w(TAG, "initCamera() while already open -- late SurfaceView callback?");
             return;
         }
         try {
             cameraManager.openDriver(surfaceHolder);
-            // Creating the handler starts the preview, which can also throw a
-            // RuntimeException.
             if (handler == null) {
                 handler = new CaptureActivityHandler(this, viewfinderView,
                         decodeFormats, characterSet, cameraManager);
@@ -333,15 +383,28 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
             decodeOrStoreSavedBitmap(null, null);
         } catch (IOException ioe) {
             Log.w(TAG, ioe);
-            Toast.makeText(this, R.string.camera_problem, Toast.LENGTH_SHORT)
-                    .show();
+            Toast.makeText(this, R.string.camera_problem, Toast.LENGTH_SHORT).show();
             finish();
         } catch (RuntimeException e) {
-            // Barcode Scanner has seen crashes in the wild of this variety:
-            // java.?lang.?RuntimeException: Fail to connect to camera service
             Log.w(TAG, "Unexpected error initializing camera", e);
-            Toast.makeText(this, R.string.framwork_problem, Toast.LENGTH_SHORT)
-                    .show();
+            Toast.makeText(this, R.string.framwork_problem, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CAMERA_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (hasSurface) {
+                    SurfaceView surfaceView = findViewById(R.id.preview_view);
+                    if (surfaceView != null) {
+                        initCamera(surfaceView.getHolder());
+                    }
+                }
+            } else {
+                Toast.makeText(this, R.string.camera_permission_denied, Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -352,6 +415,8 @@ public final class CaptureActivity extends AppCompatActivity implements SurfaceH
     }
 
     public void drawViewfinder() {
-        viewfinderView.drawViewfinder();
+        if (viewfinderView != null) {
+            viewfinderView.drawViewfinder();
+        }
     }
 }

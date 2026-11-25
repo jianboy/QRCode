@@ -10,6 +10,7 @@
 
     <string name="camera_problem">抱歉，您相机出现问题。您可能需要重启设备。</string>
     <string name="framwork_problem">二维码扫描暂时出现问题。请检查摄像头权限。</string>
+    <string name="camera_permission_denied">未获得相机权限，无法开启扫码预览，您仍可从相册选择图片识别。</string>
     <string name="msg_share_subject_line">这是我所扫描条码的内容</string>
     <string name="msg_default_mms_subject">Hi</string>
     <string name="msg_intent_failed">抱歉，无法打开所需软件。 条码内容可能无效。</string>
@@ -23,6 +24,9 @@
 
     <string name="qrcode_notice">将二维码图案放在取景框内，即可自动扫描。</string>
     <string name="openorclose_light">打开或关闭灯光</string>
+    <string name="pick_from_gallery">相册</string>
+    <string name="decode_gallery_failed">未在所选图片中识别到二维码</string>
+    <string name="decode_gallery_read_error">无法读取所选图片</string>
 
     <string name="qrcode_open">用浏览器打开</string>
 

@@ -20,9 +20,9 @@ public class Config {
     /**
      * 解码器
      */
-    public static final boolean KEY_DECODE_1D = false;
-    public static final boolean KEY_DECODE_QR = false;
-    public static final boolean KEY_DECODE_DATA_MATRIX = false;
+    public static final boolean KEY_DECODE_1D = true;
+    public static final boolean KEY_DECODE_QR = true;
+    public static final boolean KEY_DECODE_DATA_MATRIX = true;
 
     /**
      * 扫描到结果后是否震动，默认为false,声音默认为true

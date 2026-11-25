@@ -1,41 +1,63 @@
-apply plugin: 'com.android.application'
+plugins {
+    id 'com.android.application'
+}
 
 def keystoreProperties = new Properties()
-def keystoreProperitiesFile = rootProject.file('keystore.properties')
-if (keystoreProperitiesFile.exists()) {
-    keystoreProperties.load(new FileInputStream(keystoreProperitiesFile))
+def keystorePropertiesFile = rootProject.file('keystore.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
+def customKeystorePath = keystoreProperties['storeFile']
+def customKeystoreFile = customKeystorePath != null ? file(customKeystorePath) : null
+
 android {
-    signingConfigs {
-        release {
-            storeFile file(keystoreProperties['storeFile'])
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storePassword keystoreProperties['storePassword']
-        }
-    }
-    compileSdkVersion 30
+    namespace 'me.yoqi.android.qrcode'
+    compileSdk 36
 
     defaultConfig {
-        versionCode 14
-        versionName "1.23.1"
         applicationId "me.yoqi.android.qrcode"
-        minSdkVersion 16
-        targetSdkVersion 30
+        minSdk 21
+        targetSdk 36
+        versionCode 15
+        versionName "1.24.0"
+    }
+
+    signingConfigs {
+        debug {
+            // 使用系统/本地默认 debug 密钥
+        }
+        release {
+            if (customKeystoreFile != null && customKeystoreFile.exists()) {
+                storeFile customKeystoreFile
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storePassword keystoreProperties['storePassword']
+            } else {
+                initWith debug
+            }
+        }
     }
 
     buildTypes {
         release {
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-project.txt'
             signingConfig signingConfigs.release
-            multiDexEnabled true
         }
+        debug {
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation project(":utils")
+    implementation platform('org.jetbrains.kotlin:kotlin-bom:1.8.22')
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.core:core:1.15.0'
 }
